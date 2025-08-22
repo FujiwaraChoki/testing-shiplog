@@ -23,7 +23,7 @@ const colors = {
 };
 
 // Todo storage file
-const TODO_FILE = path.join(process.env.HOME || process.env.USERPROFILE, '.todos.json');
+const TODO_FILE = "todos.json";
 
 class TodoApp {
   constructor() {
