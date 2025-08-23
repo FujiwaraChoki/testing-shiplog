@@ -4,9 +4,10 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Todo App</title>
+		<title>Todo App</title>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-	<style>
+		<script src="https://cdn.jsdelivr.net/npm/chrono-node@2.7.4/dist/chrono.min.js"></script>
+		<style>
 		body {
 			font-family: 'Inter', sans-serif;
 			background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
@@ -96,64 +97,97 @@
 			transform: translateX(40px);
 			transition: opacity 0.3s, transform 0.3s;
 		}
-	</style>
+
+		</style>
 </head>
 <body>
 	<div class="container">
 		<div class="ai-icon">📝</div>
 		<h1>Todo App</h1>
-		<form id="todo-form" autocomplete="off">
-			<input id="todo-input" type="text" placeholder="Add a new task..." required />
-			<button type="submit" class="cta" style="margin-left:8px;">Add</button>
-		</form>
+			<form id="todo-form" autocomplete="off">
+				<input id="todo-input" type="text" placeholder="Add a new task..." required />
+				<input id="date-input" type="text" placeholder="Due date (e.g. tomorrow, next Friday)" style="margin-left:8px;flex:1;" />
+				<button type="submit" class="cta" style="margin-left:8px;">Add</button>
+			</form>
 		<ul id="todo-list"></ul>
 	</div>
 	<script>
-		const form = document.getElementById('todo-form');
-		const input = document.getElementById('todo-input');
-		const list = document.getElementById('todo-list');
+			const form = document.getElementById('todo-form');
+			const input = document.getElementById('todo-input');
+			const dateInput = document.getElementById('date-input');
+			const list = document.getElementById('todo-list');
 
-		function createTodoItem(text) {
-			const li = document.createElement('li');
-			li.className = 'todo-item';
-			const span = document.createElement('span');
-			span.textContent = text;
-			span.className = 'todo-text';
-			const actions = document.createElement('div');
-			actions.className = 'actions';
-			const doneBtn = document.createElement('button');
-			doneBtn.innerHTML = '✔️';
-			doneBtn.title = 'Mark as done';
-			doneBtn.className = 'done-btn';
-			const delBtn = document.createElement('button');
-			delBtn.innerHTML = '🗑️';
-			delBtn.title = 'Delete';
-			delBtn.className = 'delete-btn';
-			actions.appendChild(doneBtn);
-			actions.appendChild(delBtn);
-			li.appendChild(span);
-			li.appendChild(actions);
-
-			doneBtn.onclick = () => {
-				li.classList.toggle('completed');
-			};
-			delBtn.onclick = () => {
-				li.classList.add('removing');
-				setTimeout(() => li.remove(), 300);
-			};
-			return li;
-		}
-
-		form.onsubmit = e => {
-			e.preventDefault();
-			const value = input.value.trim();
-			if (value) {
-				const item = createTodoItem(value);
-				list.prepend(item);
-				input.value = '';
-				input.focus();
+			function formatDate(date) {
+				if (!date) return '';
+				return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 			}
-		};
+
+			function createTodoItem(text, dueDateText) {
+				const li = document.createElement('li');
+				li.className = 'todo-item';
+				const span = document.createElement('span');
+				span.textContent = text;
+				span.className = 'todo-text';
+
+				let dueDate = null;
+				let parsed = null;
+				if (dueDateText) {
+					parsed = chrono.parseDate(dueDateText);
+				}
+				if (parsed) dueDate = parsed;
+
+				const due = document.createElement('span');
+				due.className = 'due-date';
+				if (dueDate) {
+					due.textContent = 'Due: ' + formatDate(dueDate);
+				}
+
+				const actions = document.createElement('div');
+				actions.className = 'actions';
+				const doneBtn = document.createElement('button');
+				doneBtn.innerHTML = '✔️';
+				doneBtn.title = 'Mark as done';
+				doneBtn.className = 'done-btn';
+				const delBtn = document.createElement('button');
+				delBtn.innerHTML = '🗑️';
+				delBtn.title = 'Delete';
+				delBtn.className = 'delete-btn';
+				actions.appendChild(doneBtn);
+				actions.appendChild(delBtn);
+				li.appendChild(span);
+				if (dueDate) li.appendChild(due);
+				li.appendChild(actions);
+
+				doneBtn.onclick = () => {
+					li.classList.toggle('completed');
+				};
+				delBtn.onclick = () => {
+					li.classList.add('removing');
+					setTimeout(() => li.remove(), 300);
+				};
+				return li;
+			}
+
+			form.onsubmit = e => {
+				e.preventDefault();
+				const value = input.value.trim();
+				const dateValue = dateInput.value.trim();
+				if (value) {
+					const item = createTodoItem(value, dateValue);
+					list.prepend(item);
+					input.value = '';
+					dateInput.value = '';
+					input.focus();
+				}
+			};
+		.due-date {
+			display: block;
+			font-size: 0.95em;
+			color: #6366f1;
+			margin-top: 0.2em;
+			margin-bottom: 0.2em;
+			font-weight: 500;
+		}
 	</script>
 </body>
 </html>
