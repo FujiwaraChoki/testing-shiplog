@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AI Todo App</title>
+	<title>Todo App</title>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 	<style>
 		body {
@@ -21,7 +21,7 @@
 			background: #fff;
 			border-radius: 18px;
 			box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-			padding: 48px 32px;
+			padding: 48px 32px 32px 32px;
 			max-width: 400px;
 			text-align: center;
 		}
@@ -30,37 +30,130 @@
 			margin-bottom: 0.5em;
 			color: #3730a3;
 		}
-		p {
-			color: #64748b;
-			margin-bottom: 2em;
-		}
-		.cta {
-			display: inline-block;
-			background: #6366f1;
-			color: #fff;
-			padding: 0.75em 2em;
-			border-radius: 8px;
-			text-decoration: none;
-			font-weight: 700;
-			font-size: 1.1rem;
-			transition: background 0.2s;
-		}
-		.cta:hover {
-			background: #4338ca;
-		}
 		.ai-icon {
 			font-size: 3rem;
 			margin-bottom: 0.5em;
 			color: #6366f1;
 		}
+		#todo-form {
+			display: flex;
+			margin-bottom: 1.5em;
+			gap: 0.5em;
+			justify-content: center;
+		}
+		#todo-input {
+			flex: 1;
+			padding: 0.7em 1em;
+			border: 1.5px solid #c7d2fe;
+			border-radius: 8px;
+			font-size: 1rem;
+			outline: none;
+			transition: border 0.2s;
+		}
+		#todo-input:focus {
+			border-color: #6366f1;
+		}
+		#todo-list {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+		.todo-item {
+			background: #f1f5f9;
+			border-radius: 8px;
+			margin-bottom: 0.7em;
+			padding: 0.9em 1em;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			box-shadow: 0 2px 8px rgba(99,102,241,0.04);
+			transition: background 0.2s, transform 0.2s, opacity 0.3s;
+			opacity: 1;
+		}
+		.todo-item.completed .todo-text {
+			text-decoration: line-through;
+			color: #a5b4fc;
+			opacity: 0.7;
+		}
+		.todo-item .actions {
+			display: flex;
+			gap: 0.5em;
+		}
+		.todo-item button {
+			background: none;
+			border: none;
+			font-size: 1.2rem;
+			cursor: pointer;
+			padding: 0.2em 0.4em;
+			border-radius: 4px;
+			transition: background 0.15s;
+		}
+		.todo-item button:hover {
+			background: #e0e7ff;
+		}
+		.todo-item.removing {
+			opacity: 0;
+			transform: translateX(40px);
+			transition: opacity 0.3s, transform 0.3s;
+		}
 	</style>
 </head>
 <body>
 	<div class="container">
-		<div class="ai-icon">🤖</div>
-		<h1>AI Todo App</h1>
-		<p>Organize your tasks effortlessly with the power of AI.<br>Let smart suggestions and automation boost your productivity.</p>
-		<a href="#" class="cta">Get Started</a>
+		<div class="ai-icon">📝</div>
+		<h1>Todo App</h1>
+		<form id="todo-form" autocomplete="off">
+			<input id="todo-input" type="text" placeholder="Add a new task..." required />
+			<button type="submit" class="cta" style="margin-left:8px;">Add</button>
+		</form>
+		<ul id="todo-list"></ul>
 	</div>
+	<script>
+		const form = document.getElementById('todo-form');
+		const input = document.getElementById('todo-input');
+		const list = document.getElementById('todo-list');
+
+		function createTodoItem(text) {
+			const li = document.createElement('li');
+			li.className = 'todo-item';
+			const span = document.createElement('span');
+			span.textContent = text;
+			span.className = 'todo-text';
+			const actions = document.createElement('div');
+			actions.className = 'actions';
+			const doneBtn = document.createElement('button');
+			doneBtn.innerHTML = '✔️';
+			doneBtn.title = 'Mark as done';
+			doneBtn.className = 'done-btn';
+			const delBtn = document.createElement('button');
+			delBtn.innerHTML = '🗑️';
+			delBtn.title = 'Delete';
+			delBtn.className = 'delete-btn';
+			actions.appendChild(doneBtn);
+			actions.appendChild(delBtn);
+			li.appendChild(span);
+			li.appendChild(actions);
+
+			doneBtn.onclick = () => {
+				li.classList.toggle('completed');
+			};
+			delBtn.onclick = () => {
+				li.classList.add('removing');
+				setTimeout(() => li.remove(), 300);
+			};
+			return li;
+		}
+
+		form.onsubmit = e => {
+			e.preventDefault();
+			const value = input.value.trim();
+			if (value) {
+				const item = createTodoItem(value);
+				list.prepend(item);
+				input.value = '';
+				input.focus();
+			}
+		};
+	</script>
 </body>
 </html>
