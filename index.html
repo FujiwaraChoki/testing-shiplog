@@ -104,11 +104,12 @@
 	<div class="container">
 		<div class="ai-icon">📝</div>
 		<h1>Todo App</h1>
-			<form id="todo-form" autocomplete="off">
-				<input id="todo-input" type="text" placeholder="Add a new task..." required />
-				<input id="date-input" type="text" placeholder="Due date (e.g. tomorrow, next Friday)" style="margin-left:8px;flex:1;" />
-				<button type="submit" class="cta" style="margin-left:8px;">Add</button>
-			</form>
+				<form id="todo-form" autocomplete="off">
+					<input id="todo-input" type="text" placeholder="Add a new task..." required />
+					<input id="date-input" type="text" placeholder="Due date (e.g. tomorrow, next Friday)" style="margin-left:8px;flex:1;" />
+					<button type="submit" class="cta" style="margin-left:8px;">Add</button>
+				</form>
+				<button id="surprise-btn" class="cta" style="margin-bottom:1.5em;background:#10b981;">Surprise Me 🎲</button>
 		<ul id="todo-list"></ul>
 	</div>
 	<script>
@@ -116,6 +117,63 @@
 			const input = document.getElementById('todo-input');
 			const dateInput = document.getElementById('date-input');
 			const list = document.getElementById('todo-list');
+			const surpriseBtn = document.getElementById('surprise-btn');
+		// Insane feature: Surprise Me button uses OpenAI to generate a fun/motivational todo
+		surpriseBtn.onclick = async () => {
+			surpriseBtn.disabled = true;
+			surpriseBtn.textContent = 'Thinking...';
+			try {
+				// You can replace this with your own OpenAI API key and endpoint, or use a fun fallback
+				const prompt = `Give me a short, fun, or motivational todo someone could do today. Respond with just the todo, no extra text.`;
+				let todoText = '';
+				// Try OpenAI API if available, else fallback
+				try {
+					const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'Authorization': 'Bearer sk-REPLACE_WITH_YOUR_KEY'
+						},
+						body: JSON.stringify({
+							model: 'gpt-3.5-turbo',
+							messages: [{role: 'user', content: prompt}],
+							max_tokens: 32,
+							temperature: 0.9
+						})
+					});
+					const data = await resp.json();
+					todoText = data.choices?.[0]?.message?.content?.trim() || '';
+				} catch (e) {
+					// Fallback: random fun todo
+					const fallbacks = [
+						'Dance for 2 minutes to your favorite song',
+						'Compliment a stranger',
+						'Write a haiku about your day',
+						'Go for a 10-minute walk',
+						'Try a new food recipe',
+						'Send a thank you message to someone',
+						'Do 10 push-ups',
+						'Meditate for 5 minutes',
+						'Draw something silly',
+						'Organize your desk',
+						'Smile at yourself in the mirror',
+						'Read a random Wikipedia article',
+						'Plan a weekend adventure',
+						'Unplug from screens for 30 minutes',
+						'Make a list of things you’re grateful for'
+					];
+					todoText = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+				}
+				// Pick a random due date in the next 7 days
+				const days = Math.floor(Math.random() * 7) + 1;
+				const dueDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+				const item = createTodoItem(todoText, dueDate);
+				list.prepend(item);
+			} finally {
+				surpriseBtn.disabled = false;
+				surpriseBtn.textContent = 'Surprise Me 🎲';
+			}
+		};
 
 			function formatDate(date) {
 				if (!date) return '';
@@ -180,14 +238,7 @@
 					input.focus();
 				}
 			};
-		.due-date {
-			display: block;
-			font-size: 0.95em;
-			color: #6366f1;
-			margin-top: 0.2em;
-			margin-bottom: 0.2em;
-			font-weight: 500;
-		}
+// ...existing code...
 	</script>
 </body>
 </html>
