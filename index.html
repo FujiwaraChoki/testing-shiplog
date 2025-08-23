@@ -225,14 +225,42 @@
 			if (dueDate) li.appendChild(due);
 			li.appendChild(actions);
 
-					// Easter egg: unicorn
-					if (/unicorn/i.test(text)) {
-						showUnicornEasterEgg();
-					}
-					// Easter egg: cat
-					if (/\bcat\b/i.test(text)) {
-						showCatEasterEgg();
-					}
+							// Easter egg: unicorn
+							if (/unicorn/i.test(text)) {
+								showUnicornEasterEgg();
+							}
+							// Easter egg: cat
+							if (/\bcat\b/i.test(text)) {
+								showCatEasterEgg();
+							}
+							// Easter egg: banana
+							if (/banana/i.test(text)) {
+								showBananaEasterEgg();
+							}
+		// Easter egg: banana
+		function showBananaEasterEgg() {
+			// Dancing banana gif
+			const banana = document.createElement('img');
+			banana.src = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2Z2b2Z2d3F2d2Z2d2Z2d2Z2d2Z2d2Z2d2Z2d2Z2d2Z2d2Z2/g9582DNuQppxC/giphy.gif';
+			banana.alt = 'Dancing Banana';
+			banana.style.position = 'fixed';
+			banana.style.left = '50%';
+			banana.style.top = '50%';
+			banana.style.transform = 'translate(-50%, -50%) scale(1.8)';
+			banana.style.zIndex = 9999;
+			banana.style.pointerEvents = 'none';
+			banana.style.opacity = '0.97';
+			document.body.appendChild(banana);
+			setTimeout(() => banana.remove(), 2200);
+
+			// Fun sound
+			const audio = document.createElement('audio');
+			audio.src = 'https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b4e3b.mp3';
+			audio.style.display = 'none';
+			document.body.appendChild(audio);
+			audio.play().catch(()=>{});
+			setTimeout(() => audio.remove(), 2500);
+		}
 
 			doneBtn.onclick = () => {
 				li.classList.toggle('completed');
