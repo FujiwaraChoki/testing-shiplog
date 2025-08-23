@@ -225,10 +225,14 @@
 			if (dueDate) li.appendChild(due);
 			li.appendChild(actions);
 
-			// Easter egg: unicorn
-			if (/unicorn/i.test(text)) {
-				showUnicornEasterEgg();
-			}
+					// Easter egg: unicorn
+					if (/unicorn/i.test(text)) {
+						showUnicornEasterEgg();
+					}
+					// Easter egg: cat
+					if (/\bcat\b/i.test(text)) {
+						showCatEasterEgg();
+					}
 
 			doneBtn.onclick = () => {
 				li.classList.toggle('completed');
@@ -240,8 +244,31 @@
 			return li;
 		}
 
-		// Easter egg function
+		// Easter egg: unicorn
 		function showUnicornEasterEgg() {
+		// Easter egg: cat
+		function showCatEasterEgg() {
+			// Cat emoji
+			const cat = document.createElement('div');
+			cat.textContent = '🐱';
+			cat.style.position = 'fixed';
+			cat.style.left = '50%';
+			cat.style.top = '60%';
+			cat.style.transform = 'translate(-50%, -50%) scale(3)';
+			cat.style.zIndex = 9999;
+			cat.style.pointerEvents = 'none';
+			cat.style.opacity = '0.95';
+			document.body.appendChild(cat);
+			setTimeout(() => cat.remove(), 1800);
+
+			// Meow sound
+			const audio = document.createElement('audio');
+			audio.src = 'https://cdn.jsdelivr.net/gh/thatguywiththeglasses/meow-sound@main/meow.mp3';
+			audio.style.display = 'none';
+			document.body.appendChild(audio);
+			audio.play().catch(()=>{});
+			setTimeout(() => audio.remove(), 2000);
+		}
 			// Unicorn emoji
 			const unicorn = document.createElement('div');
 			unicorn.textContent = '🦄';
