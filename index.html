@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Todo App</title>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-		<script src="https://cdn.jsdelivr.net/npm/chrono-node@2.7.4/dist/chrono.min.js"></script>
+
 		<style>
 		body {
 			font-family: 'Inter', sans-serif;
@@ -106,18 +106,19 @@
 		<h1>Todo App</h1>
 				<form id="todo-form" autocomplete="off">
 					<input id="todo-input" type="text" placeholder="Add a new task..." required />
-					<input id="date-input" type="text" placeholder="Due date (e.g. tomorrow, next Friday)" style="margin-left:8px;flex:1;" />
+					  <input id="date-input" type="date" style="margin-left:8px;flex:1;" />
 					<button type="submit" class="cta" style="margin-left:8px;">Add</button>
 				</form>
 				<button id="surprise-btn" class="cta" style="margin-bottom:1.5em;background:#10b981;">Surprise Me 🎲</button>
 		<ul id="todo-list"></ul>
 	</div>
-	<script>
-			const form = document.getElementById('todo-form');
-			const input = document.getElementById('todo-input');
-			const dateInput = document.getElementById('date-input');
-			const list = document.getElementById('todo-list');
-			const surpriseBtn = document.getElementById('surprise-btn');
+		<script>
+		const form = document.getElementById('todo-form');
+		const input = document.getElementById('todo-input');
+		const dateInput = document.getElementById('date-input');
+		const list = document.getElementById('todo-list');
+		const surpriseBtn = document.getElementById('surprise-btn');
+
 		// Insane feature: Surprise Me button uses OpenAI to generate a fun/motivational todo
 		surpriseBtn.onclick = async () => {
 			surpriseBtn.disabled = true;
@@ -167,7 +168,7 @@
 				// Pick a random due date in the next 7 days
 				const days = Math.floor(Math.random() * 7) + 1;
 				const dueDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
-				const item = createTodoItem(todoText, dueDate);
+				const item = createTodoItem(todoText, dueDate.toISOString().slice(0,10));
 				list.prepend(item);
 			} finally {
 				surpriseBtn.disabled = false;
@@ -175,99 +176,121 @@
 			}
 		};
 
-			function formatDate(date) {
-				if (!date) return '';
+		function formatDate(date) {
+			if (!date) return '';
+			if (typeof date === 'string') {
+				// yyyy-mm-dd
+				const d = new Date(date);
+				if (!isNaN(d)) return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+			}
+			if (date instanceof Date) {
 				return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 			}
+			return '';
+		}
 
-					function createTodoItem(text, dueDateText) {
-						const li = document.createElement('li');
-						li.className = 'todo-item';
-						const span = document.createElement('span');
-						span.textContent = text;
-						span.className = 'todo-text';
+		function createTodoItem(text, dueDateText) {
+			const li = document.createElement('li');
+			li.className = 'todo-item';
+			const span = document.createElement('span');
+			span.textContent = text;
+			span.className = 'todo-text';
 
-						let dueDate = null;
-						let parsed = null;
-						if (dueDateText) {
-							parsed = chrono.parseDate(dueDateText);
-						}
-						if (parsed) dueDate = parsed;
+			let dueDate = null;
+			if (dueDateText) {
+				// Expect yyyy-mm-dd
+				const d = new Date(dueDateText);
+				if (!isNaN(d)) dueDate = d;
+			}
 
-						const due = document.createElement('span');
-						due.className = 'due-date';
-						if (dueDate) {
-							due.textContent = 'Due: ' + formatDate(dueDate);
-						}
+			const due = document.createElement('span');
+			due.className = 'due-date';
+			if (dueDate) {
+				due.textContent = 'Due: ' + formatDate(dueDate);
+			}
 
-						const actions = document.createElement('div');
-						actions.className = 'actions';
-						const doneBtn = document.createElement('button');
-						doneBtn.innerHTML = '✔️';
-						doneBtn.title = 'Mark as done';
-						doneBtn.className = 'done-btn';
-						const delBtn = document.createElement('button');
-						delBtn.innerHTML = '🗑️';
-						delBtn.title = 'Delete';
-						delBtn.className = 'delete-btn';
-						actions.appendChild(doneBtn);
-						actions.appendChild(delBtn);
-						li.appendChild(span);
-						if (dueDate) li.appendChild(due);
-						li.appendChild(actions);
+			const actions = document.createElement('div');
+			actions.className = 'actions';
+			const doneBtn = document.createElement('button');
+			doneBtn.innerHTML = '✔️';
+			doneBtn.title = 'Mark as done';
+			doneBtn.className = 'done-btn';
+			const delBtn = document.createElement('button');
+			delBtn.innerHTML = '🗑️';
+			delBtn.title = 'Delete';
+			delBtn.className = 'delete-btn';
+			actions.appendChild(doneBtn);
+			actions.appendChild(delBtn);
+			li.appendChild(span);
+			if (dueDate) li.appendChild(due);
+			li.appendChild(actions);
 
-						// Easter egg: unicorn
-						if (/unicorn/i.test(text)) {
-							showUnicornEasterEgg();
-						}
+			// Easter egg: unicorn
+			if (/unicorn/i.test(text)) {
+				showUnicornEasterEgg();
+			}
 
-						doneBtn.onclick = () => {
-							li.classList.toggle('completed');
-						};
-						delBtn.onclick = () => {
-							li.classList.add('removing');
-							setTimeout(() => li.remove(), 300);
-						};
-						return li;
-					}
+			doneBtn.onclick = () => {
+				li.classList.toggle('completed');
+			};
+			delBtn.onclick = () => {
+				li.classList.add('removing');
+				setTimeout(() => li.remove(), 300);
+			};
+			return li;
+		}
 
-					// Easter egg function
-					function showUnicornEasterEgg() {
-						// Unicorn emoji
-						const unicorn = document.createElement('div');
-						unicorn.textContent = '🦄';
-						unicorn.style.position = 'fixed';
-						unicorn.style.left = '50%';
-						unicorn.style.top = '30%';
-						unicorn.style.transform = 'translate(-50%, -50%) scale(3)';
-						unicorn.style.zIndex = 9999;
-						unicorn.style.pointerEvents = 'none';
-						unicorn.style.opacity = '0.95';
-						document.body.appendChild(unicorn);
-						setTimeout(() => unicorn.remove(), 1800);
+		// Easter egg function
+		function showUnicornEasterEgg() {
+			// Unicorn emoji
+			const unicorn = document.createElement('div');
+			unicorn.textContent = '🦄';
+			unicorn.style.position = 'fixed';
+			unicorn.style.left = '50%';
+			unicorn.style.top = '30%';
+			unicorn.style.transform = 'translate(-50%, -50%) scale(3)';
+			unicorn.style.zIndex = 9999;
+			unicorn.style.pointerEvents = 'none';
+			unicorn.style.opacity = '0.95';
+			document.body.appendChild(unicorn);
+			setTimeout(() => unicorn.remove(), 1800);
 
-						// Confetti
-						for (let i = 0; i < 40; i++) {
-							const conf = document.createElement('div');
-							conf.style.position = 'fixed';
-							conf.style.left = Math.random() * 100 + 'vw';
-							conf.style.top = '-3vh';
-							conf.style.width = '10px';
-							conf.style.height = '18px';
-							conf.style.background = `hsl(${Math.random()*360},90%,70%)`;
-							conf.style.borderRadius = '3px';
-							conf.style.opacity = '0.85';
-							conf.style.zIndex = 9999;
-							conf.style.transform = `rotate(${Math.random()*360}deg)`;
-							conf.style.transition = 'top 1.5s cubic-bezier(.4,1.4,.6,1), opacity 0.5s';
-							document.body.appendChild(conf);
-							setTimeout(() => {
-								conf.style.top = '110vh';
-								conf.style.opacity = '0';
-							}, 30);
-							setTimeout(() => conf.remove(), 1700 + Math.random()*400);
-						}
-					}
+			// Confetti
+			for (let i = 0; i < 40; i++) {
+				const conf = document.createElement('div');
+				conf.style.position = 'fixed';
+				conf.style.left = Math.random() * 100 + 'vw';
+				conf.style.top = '-3vh';
+				conf.style.width = '10px';
+				conf.style.height = '18px';
+				conf.style.background = `hsl(${Math.random()*360},90%,70%)`;
+				conf.style.borderRadius = '3px';
+				conf.style.opacity = '0.85';
+				conf.style.zIndex = 9999;
+				conf.style.transform = `rotate(${Math.random()*360}deg)`;
+				conf.style.transition = 'top 1.5s cubic-bezier(.4,1.4,.6,1), opacity 0.5s';
+				document.body.appendChild(conf);
+				setTimeout(() => {
+					conf.style.top = '110vh';
+					conf.style.opacity = '0';
+				}, 30);
+				setTimeout(() => conf.remove(), 1700 + Math.random()*400);
+			}
+		}
+
+		form.onsubmit = e => {
+			e.preventDefault();
+			const value = input.value.trim();
+			const dateValue = dateInput.value;
+			if (value) {
+				const item = createTodoItem(value, dateValue);
+				list.prepend(item);
+				input.value = '';
+				dateInput.value = '';
+				input.focus();
+			}
+		};
+		</script>
 
 			form.onsubmit = e => {
 				e.preventDefault();
