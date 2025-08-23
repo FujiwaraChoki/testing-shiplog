@@ -1,3 +1,3 @@
-# Sigma App
+# ToDo App
 
-A self-improvemnt app called Sigma App.
+JavaScript based ToDo App.
